@@ -200,15 +200,15 @@ int normalizeName( char *name )
 
   char aux[1024];
 
-//fprintf(stderr, "antes : %s\n", name);
+//fprintf(stderr, "antes : '%s'\n", name);
 
-  // (TM) = E2 84 A2 | 28 54 4D 29
-  memset(aux, 0, strlen(aux));
+  memset(aux, 0, sizeof(aux));
   o=0;
   for(n=0; n<(strlen(name)); n++)
   {
 //fprintf(stderr, ": |%x|%c|\n", name[n], name[n] );
 
+    // (TM) = E2 84 A2 | 28 54 4D 29
     if(    name[n]   == 0xffffffe2
        &&  name[n+1] == 0xffffff84
        &&  name[n+2] == 0xffffffa2
@@ -216,40 +216,18 @@ int normalizeName( char *name )
     {
       n+=2;
     }
-    else
+    // : = 3a
+    else if ( name[n] == 0x3a  )
     {
-      aux[o] = name[n];
+    }
+    // / = 2f
+    else if ( name[n] == 0x2f  )
+    {
+      aux[o] = ':';
       o++;
     }
-
-  }
-  memset( name, 0, strlen(name));
-  memcpy( name, aux, strlen(aux) );
-
-  // (:) = 3a
-  memset(aux, 0, strlen(aux));
-  o=0;
-  for(n=0; n<(strlen(name)); n++)
-  {
-    if( name[n] == 0x3a  )
-    {
-    }
-    else
-    {
-      aux[o] = name[n];
-      o++;
-    }
-
-  }
-  memset( name, 0, strlen(name));
-  memcpy( name, aux, strlen(aux) );
-
-  // (R) = c2 ae
-  memset(aux, 0, strlen(aux));
-  o=0;
-  for(n=0; n<(strlen(name)); n++)
-  {
-    if(    name[n]   == 0xffffffc2
+    // (R) = c2 ae
+    else if( name[n]   == 0xffffffc2
        &&  name[n+1] == 0xffffffae
        )
     {
@@ -261,15 +239,28 @@ int normalizeName( char *name )
       o++;
     }
 
-  }
-  memset( name, 0, strlen(name));
-  memcpy( name, aux, strlen(aux) );
+  }   //@TODO: TRIM
+  trim(aux);
+  memset( name, 0, sizeof(name));
+  memcpy( name, aux, sizeof(aux) );
 
-//	fprintf(stderr, "depois: %s\n", aux);
-//	fprintf(stderr, "depois: %s\n", name);
+//fprintf(stderr, "depois: '%s'\n", aux);
+//fprintf(stderr, "depois: '%s'\n", name);
 
 //  exit (0);
   return(0);
 }
 // -----------------------------------------------------------------------------
+void trim (char *s)
+{
+    int i;
+
+    while (isspace (*s)) s++;   // skip left side white spaces
+    for (i = strlen (s) - 1; (isspace (s[i])); i--) ;   // skip right side white spaces
+    s[i + 1] = '\0';
+//    printf ("%s\n", s);
+}
+// -----------------------------------------------------------------------------
+
+
 

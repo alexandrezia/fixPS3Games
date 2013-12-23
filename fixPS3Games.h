@@ -23,4 +23,6 @@ int getField ( char *fileName, char *field, char *value);
 
 int normalizeName( char *name );
 
+void trim (char *s);
+
 #endif /* FIXPS3GAMES_H_ */
